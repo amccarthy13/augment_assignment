@@ -9,6 +9,13 @@ The project is divided into 7 sections:
 - app.py: this contains all the endpoint definitions for the project.
 - changeset.sql: this contains table and view definitions for the postgres db.
 
+Assumptions:
+- users and funds need to be created before any operations can be performed on them.
+- the initial transfer of units to a user is done through an operation called a 'grant'.  This operation gives units to a user through a transfer with a null sender.
+- there are 3 tables created for this project: a 'users' table, a 'funds' table, and a 'transfers' table.  The associated cap table is calculated using a view.  A view was also created to track the number of units remaining for each fund.
+- all reference_ids (UUIDs) are auto generated when the associated entry is inserted into the db.  The reference ids can be retrieved using the GET endpoints.
+
+
 To run:
 
 - set up a local postgres DB.  The following environment variables should be set with the values for your local db:
