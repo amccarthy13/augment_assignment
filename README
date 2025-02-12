@@ -1,0 +1,68 @@
+This project is a Python Flask app utilizing a Postgres database.
+It requires the following python packages: psycopg2, flask, pydantic, and pytest (just for tests)
+The project is divided into 7 sections:
+- domain: this contains domain objects such as 'user' and 'fund'
+- exception: this contains custom defined exception objects
+- managers: this contains a single class called 'FundManager'.  It contains all the functional logic for the project such as queries and parameter validations.
+- resources: this contains a single class called 'PostgreSQL' that contains all the logic for directly interacting with the db.
+- tests: this contains all the unit tests.
+- app.py: this contains all the endpoint definitions for the project.
+- changeset.sql: this contains table and view definitions for the postgres db.
+
+To run:
+
+- set up a local postgres DB.  The following environment variables should be set with the values for your local db:
+    - DB_HOST, DB_PORT, DB_USER, DB_NAME
+    - You can also find the defaults in resources/postgres.py and manually set them to your local values.
+- run the queries contained in 'changeset.sql' in the newly created db
+- install a python instance and download the packages mentioned above.  You can use pip to do this, or whatever package installer you prefer.
+- run 'python app.py' to run the app
+- the endpoints for the app are as follows:
+    - POST /user?name=<>: creates a new user object with a randomly generated UUID and the provided name
+    - POST /fund?name=<>&total_shares=<>: creates a new fund object with a randomly generated UUID and the provided name and share/unit count
+    - GET /users: retrieves all users currently saved in the DB. The return object is structured as follows:
+        - List of {
+            "reference_id": UUID,
+            "name": string,
+            "created_date": datetime
+          }
+    - GET /funds: retrieves all fund objects currently saved in the DB.  The return object is structured as follows:
+        - List of {
+            "reference_id": UUID,
+            "name": string,
+            "total_shares": integer,
+            "available_shares": integer,
+            "created_date": datetime,
+        }
+    - GET /cap_table?fund=<>: retrieves the cap table given the reference_id for a fund.  The return object is structured as follows:
+        - List of {
+            "user_id": UUID,
+            "username": string,
+            "fund": UUID,
+            "total_shares": integer,
+            "last_update": datetime,
+        }
+    - GET /transfers?fund=<>: retrieves all transfers for the given fund reference_id.  The return object is structured as follows:
+        - List of {
+            "reference_id": UUID,
+            "sending_user": UUID (nullable),
+            "sending_username": string (nullable),
+            "receiving_user": UUID,
+            "receiving_username",
+            "fund": UUID,
+            "transfer_type": Enum string. Can be 'transfer' (transfer between users) or 'grant' (initial transfer to a receiving user with no/null sender),
+            "amount": integer,
+            "created_date": datetime,
+        }
+    - POST /transfer: creates a new transfer.  The request object is structured as follows:
+        - {
+            "sending_user": UUID (nullable. Don't provide if it is an initial grant transfer),
+            "receiving_user": UUID,
+            "fund": UUID,
+            "amount": integer,
+            "transfer_type": Enum string. Can be 'transfer' (transfer between users) or 'grant' (initial transfer to a receiving user with no/null sender),
+        }
+- unit tests can be run by using an IDE with pytest functionality, or by calling 'pytest' in a CLI.
+
+
+
